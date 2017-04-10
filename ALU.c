@@ -8,12 +8,12 @@ int ALU(ALUoper oper, int ALU0, int ALU1)
         switch(oper.func)
         {
         case 0x20: // add
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x21: // addu
             return ALU0 + ALU1;
         case 0x22: // sub
-            OverFlow_add(ALU0, -ALU1, ALU0 - ALU1);
+            rwae.num_over = OverFlow_add(ALU0, -ALU1, ALU0 - ALU1);
             return ALU0 - ALU1;
         case 0x24: // and
             return ALU0 & ALU1;
@@ -42,33 +42,33 @@ int ALU(ALUoper oper, int ALU0, int ALU1)
         switch(oper.func)
         {
         case 0x08: // addi
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x09: // addiu
             return ALU0 + ALU1;
         case 0x23: // lw
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x21: // lh
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x25: // lhu
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x20: // lb
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x24: // lbu
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x2b: // sw
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x29: // sh
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x28: // sb
-            OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x0f: // lui
             return ALU1 << 16;

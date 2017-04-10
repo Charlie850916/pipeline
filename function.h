@@ -10,7 +10,10 @@ typedef struct{
     int data;
     int HI;
     int LO;
-}RegWrite;
+    int num_over;
+    int addr_mis;
+    int addr_over;
+}RegWriteAndError;
 
 typedef struct{
     int isWB;
@@ -50,15 +53,15 @@ typedef struct{
 }IDEX;
 
 typedef struct{
+    unsigned int inIS;   
     unsigned int IS;
-    unsigned int inIS;
 }IFID;
 
 MEMWB mem2wb;
 EXMEM ex2mem;
 IDEX id2ex;
 IFID if2id;
-RegWrite regset;
+RegWriteAndError rwae;
 
 int s[32], s_p[32], s_tmp[32];
 
@@ -72,7 +75,7 @@ FILE *fp_r, *fp_err;
 
 char ID_c[6], EX_c[6], MEM_c[6], WB_c[6];
 
-int cycle, overwriteHL, halt, stall;
+int cycle, overwriteHL, halt, stall, flush, branchPC;
 
 int fwd_rs, fwd_rt, bfwd_rs, bfwd_rt;
 
@@ -116,7 +119,7 @@ int ALU(ALUoper oper, int ALU0, int ALU1);
 
 int s0_Overwrite(int d);
 
-void OverFlow_add(int s, int t, int d);
+int OverFlow_add(int s, int t, int d);
 
 int Misalignment(int i, int byte);
 
@@ -144,7 +147,7 @@ int BranchFwd_memwb2rt();
 
 void Instruction_Detect(unsigned int opcode, unsigned int func);
 
-void Reg_Write();
+void RegWriteANDError();
 
 void WB();
 

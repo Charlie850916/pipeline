@@ -8,7 +8,7 @@ int main()
 
     while(!halt)
     {
-        Reg_Write();
+        RegWriteANDError();
 
         if(BranchFwd_exmem2rs()) bfwd_rs = ex2mem.data;
         bforward_exmem2rs = BranchFwd_exmem2rs();
@@ -36,11 +36,13 @@ int main()
 
         if(!halt) PrintImf();
 
-        if( GetOpcode(if2id.IS)==0x3f && ID_c[0]=='H' && EX_c[0]=='H' && MEM_c[0]=='H' && WB_c[0]=='H' && !regset.isWriteReg && !regset.isWriteHILO) halt = 1;
+        if( GetOpcode(if2id.IS)==0x3f && ID_c[0]=='H' && EX_c[0]=='H' && MEM_c[0]=='H' && WB_c[0]=='H' && !rwae.isWriteReg && !rwae.isWriteHILO) halt = 1;
 
-        if(!stall) PC = PC + 4;
+        if(!stall) PC = PC + 4; 
+        if(flush) PC = branchPC;
+
+        if(cycle == 150) halt = 1;
         cycle++;
-        if(cycle == 10 )halt = 1;
     }
 
     Ending();

@@ -1,20 +1,35 @@
 #include "function.h"
 
-void Reg_Write()
+void RegWriteANDError()
 {
-    if(regset.isWriteReg)
+    if(rwae.isWriteReg)
     {
-        s[regset.save_reg] = regset.data;
-        s0_Overwrite(regset.save_reg);
-        regset.isWriteReg = 0;
+        s[rwae.save_reg] = rwae.data;
+        s0_Overwrite(rwae.save_reg);
+        rwae.isWriteReg = 0;
     }
-    if(regset.isWriteHILO)
+    if(rwae.isWriteHILO)
     {
-        if(regset.isOverwriteHILO) fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
-        regset.isOverwriteHILO = 1;
-        HI = regset.HI;
-        LO = regset.LO;
-        regset.isWriteHILO = 0;
+        if(rwae.isOverwriteHILO) fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
+        rwae.isOverwriteHILO = 1;
+        HI = rwae.HI;
+        LO = rwae.LO;
+        rwae.isWriteHILO = 0;
+    }
+    if(rwae.addr_over)
+    {
+        halt = 1;
+        fprintf(fp_err, "In cycle %d: Address Overflow\n", cycle);
+    }
+    if(rwae.addr_mis)
+    {
+        halt = 1;
+        fprintf(fp_err, "In cycle %d: Misalignment Error\n", cycle);
+    }
+    if(rwae.num_over)
+    {
+        fprintf(fp_err, "In cycle %d: Number Overflow\n", cycle);
+        rwae.num_over = 0; 
     }
     return;
 }
@@ -26,9 +41,9 @@ void WB()
 
     if(mem2wb.isWB == 1)
     {
-        regset.isWriteReg = 1;
-        regset.data = mem2wb.data;
-        regset.save_reg = mem2wb.save_reg;
+        rwae.isWriteReg = 1;
+        rwae.data = mem2wb.data;
+        rwae.save_reg = mem2wb.save_reg;
     }
 
     return;
@@ -42,14 +57,26 @@ void MEM()
     mem2wb.isWB = ex2mem.isWB;
     mem2wb.save_reg = ex2mem.save_reg;
 
+    if(MEM_c[0] == 'N' && MEM_c[1] == 'O' && MEM_c[2] == 'P')
+    {
+         mem2wb.isWB = 0;
+         mem2wb.save_reg = 0;
+         return;
+    }
+
     if(ex2mem.isMEM == 1)
     {
         if(AddressOverflow(ex2mem.data,ex2mem.byte))
         {
-            Misalignment(ex2mem.data,ex2mem.byte);
+            rwae.addr_over = 1;
+            rwae.addr_mis = Misalignment(ex2mem.data,ex2mem.byte);
             return;
         }
-        if(Misalignment(ex2mem.data,ex2mem.byte)) return;
+        if(Misalignment(ex2mem.data,ex2mem.byte))
+        {
+            rwae.addr_mis = 1; 
+            return;
+        }
         if(ex2mem.LS == 1) // load
         {
             switch(ex2mem.byte)
@@ -110,9 +137,18 @@ void EX()
         EX_c[3] = '\0';
         ex2mem.isMEM = 0;
         ex2mem.isWB = 0;
+        ex2mem.save_reg = 0;
         return;
     }
     else for(i = 0 ; i < 6 ; i++) EX_c[i] = ID_c[i];
+
+    if(EX_c[0] == 'N' && EX_c[1] == 'O' && EX_c[2] == 'P')
+    {
+        ex2mem.isMEM = 0;
+        ex2mem.isWB = 0;
+        ex2mem.save_reg = 0;
+        return;
+    }
 
     ex2mem.sign = id2ex.sign;
     ex2mem.byte = id2ex.byte;
@@ -147,28 +183,28 @@ void EX()
         }
         if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x18) // mult
         {
-            regset.isWriteHILO = 1;
+            rwae.isWriteHILO = 1;
             a = ALU0;
             b = ALU1;
-            regset.HI = a*b >> 32;
-            regset.LO = a*b & 0x00000000ffffffff;
+            rwae.HI = a*b >> 32;
+            rwae.LO = a*b & 0x00000000ffffffff;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x19) // multu
         {
-            regset.isWriteHILO = 1;
+            rwae.isWriteHILO = 1;
             a = ( ALU0 & 0x00000000ffffffff);
             b = ( ALU1 & 0x00000000ffffffff);
-            regset.HI = a*b >> 32;
-            regset.LO = a*b & 0x00000000ffffffff ;
+            rwae.HI = a*b >> 32;
+            rwae.LO = a*b & 0x00000000ffffffff ;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x10) // mfhi
         {
-            regset.isOverwriteHILO = 0;
+            rwae.isOverwriteHILO = 0;
             ex2mem.data = HI;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x12) // mflo
         {
-            regset.isOverwriteHILO = 0;
+            rwae.isOverwriteHILO = 0;
             ex2mem.data = LO;
         }
         else ex2mem.data = ALU(id2ex.oper, ALU0, ALU1);
@@ -188,6 +224,23 @@ void ID()
 
     if(!stall) Instruction_Detect(opcode, Get_func(if2id.IS));
 
+    if(flush)
+    {
+        stall = 0;
+        flush = 0;
+        ID_c[0] = 'N';
+        ID_c[1] = 'O';
+        ID_c[2] = 'P';
+        ID_c[3] = '\0';
+        id2ex.isEX = 0;
+        id2ex.isMEM = 0;
+        id2ex.isWB = 0;
+        id2ex.rs = 0;
+        id2ex.rt = 0;
+        return;
+    }
+
+    flush = 0;
     stall = 0;
     if(opcode == 0x00)
     {
@@ -235,9 +288,11 @@ void ID()
 
         if(Get_func(if2id.IS) == 0x08) //jr
         {
+            flush = 1;
             id2ex.isEX = 0;
             id2ex.isWB = 0;
-            PC = s[id2ex.rs];
+            if(bforward_exmem2rs || bforward_memwb2rs) branchPC = bfwd_rs; 
+            else branchPC = s[id2ex.rs];
             return;
         }
 
@@ -246,6 +301,7 @@ void ID()
     }
     else if(opcode == 0x02 || opcode == 0x03) // J_type
     {
+        flush = 1;
         id2ex.isEX = 0;
         id2ex.isMEM = 0;
         id2ex.isWB = 0;
@@ -253,9 +309,9 @@ void ID()
         {
             id2ex.isWB = 1;
             id2ex.save_reg = 31;
-            id2ex.jalPC = PC + 4;
+            id2ex.jalPC = PC;
         }
-        PC = ((PC+4)&0xf0000000) | Get_addr(if2id.IS) << 2;
+        branchPC = ((PC+4)&0xf0000000) | Get_addr(if2id.IS) << 2;
     }
     else if(opcode == 0x3f) // halt
     {
@@ -341,13 +397,25 @@ void ID()
             switch(opcode)
             {
             case 0x04: // beq
-                if($s == $t)PC = PC + 4 + 4 * (Get_i(if2id.IS));
+                if($s == $t) 
+                { 
+                   flush = 1;   
+                   branchPC = PC + 4 * (Get_i(if2id.IS));
+                }
                 return;
             case 0x05: // bne
-                if($s != $t) PC = PC + 4 + 4 * (Get_i(if2id.IS));
+                if($s != $t) 
+                {
+                   flush = 1;
+                   branchPC = PC + 4 * (Get_i(if2id.IS));
+                }
                 return;
             case 0x07: // bgtz
-                if($s > 0) PC = PC + 4 + 4 * (Get_i(if2id.IS));
+                if($s > 0) 
+                { 
+                   flush = 1;
+                   branchPC = PC + 4 * (Get_i(if2id.IS));
+                } 
                 return;
             }
         }
@@ -358,7 +426,6 @@ void ID()
 
 void IF()
 {
-    if2id.inIS = i_mem[PC/4];
-    if(!stall) if2id.IS = if2id.inIS;
+    if(!stall) if2id.IS = i_mem[PC/4];
     return;
 }

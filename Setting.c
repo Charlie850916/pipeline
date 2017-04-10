@@ -55,9 +55,13 @@ void Initial()
     overwriteHL = 0;
     halt = 0;
     stall = 0;
-    regset.isWriteReg = 0;
-    regset.isOverwriteHILO = 0;
-    regset.isWriteHILO = 0;
+    flush = 0;
+    rwae.isWriteReg = 0;
+    rwae.isOverwriteHILO = 0;
+    rwae.isWriteHILO = 0;
+    rwae.addr_mis = 0;
+    rwae.addr_over = 0;
+    rwae.num_over = 0;
     mem2wb.isWB = 0;
     ex2mem.isMEM = 0;
     ex2mem.isWB = 0;
@@ -86,9 +90,9 @@ void Initial()
     WB_c[2] = 'P';
     WB_c[3] = '\0';
 
-    IF();
     InitialImf();
-    if(!stall) PC = PC + 4;
+    if2id.IS = i_mem[PC/4];
+    PC = PC + 4;
 
     return;
 }

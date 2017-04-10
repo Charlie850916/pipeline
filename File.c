@@ -11,7 +11,7 @@ void InitialImf()
     fprintf(fp_r,"$HI: 0x%08X\n", HI);
     fprintf(fp_r,"$LO: 0x%08X\n", LO);
     fprintf(fp_r,"PC: 0x%08X\n", PC);
-    fprintf(fp_r,"IF: 0x%08X\n", if2id.IS);
+    fprintf(fp_r,"IF: 0x%08X\n", i_mem[PC/4]);
     fprintf(fp_r,"ID: NOP\n");
     fprintf(fp_r,"EX: NOP\n");
     fprintf(fp_r,"DM: NOP\n");
@@ -43,7 +43,8 @@ void PrintImf()
     }
     fprintf(fp_r,"PC: 0x%08X\n",PC);
 
-    fprintf(fp_r,"IF: 0x%08X",if2id.inIS);
+    fprintf(fp_r,"IF: 0x%08X",i_mem[PC/4]);
+    if(flush) fprintf(fp_r," to_be_flushed");
     if(stall) fprintf(fp_r," to_be_stalled");
     fprintf(fp_r,"\n");
 
@@ -77,41 +78,3 @@ void PrintImf()
     return;
 }
 
-void OverFlow_add(int s, int t, int d)
-{
-    if( (s>0 && t>0 && d<=0) || (s<0 && t<0 && d>=0) ) fprintf(fp_err, "In cycle %d: Number Overflow\n", cycle);
-    return;
-}
-
-int s0_Overwrite(int d)
-{
-    if(d==0)
-    {
-        s[0] = 0;
-        fprintf(fp_err, "In cycle %d: Write $0 Error\n", cycle);
-        return 1;
-    }
-    return 0;
-}
-
-int Misalignment(int i, int byte)
-{
-    if( i%byte != 0 )
-    {
-        halt = 1;
-        fprintf(fp_err, "In cycle %d: Misalignment Error\n", cycle);
-        return 1;
-    }
-    return 0;
-}
-
-int AddressOverflow(int sp, int b)
-{
-    if( sp > 1024-b || sp < 0)
-    {
-        halt = 1;
-        fprintf(fp_err, "In cycle %d: Address Overflow\n", cycle);
-        return 1;
-    }
-    return 0;
-}
