@@ -28,7 +28,7 @@ void WB()
     {
         regset.isWriteReg = 1;
         regset.data = mem2wb.data;
-        regset.save_reg = mem2wb.wb_reg;
+        regset.save_reg = mem2wb.save_reg;
     }
 
     return;
@@ -40,7 +40,7 @@ void MEM()
     for(i = 0 ; i < 6 ; i++) MEM_c[i] = EX_c[i];
 
     mem2wb.isWB = ex2mem.isWB;
-    mem2wb.wb_reg = ex2mem.save_reg;
+    mem2wb.save_reg = ex2mem.save_reg;
 
     if(ex2mem.isMEM == 1)
     {
@@ -67,7 +67,6 @@ void MEM()
                     mem2wb.data = (d_mem[ex2mem.data]<<8) | (d_mem[ex2mem.data+1]);
                 break;
             case 4: // lw
-                            printf("cycle %d lw\n",cycle);
                 mem2wb.data = (d_mem[ex2mem.data]<<24) | (d_mem[ex2mem.data+1]<<16) | (d_mem[ex2mem.data+2]<<8) | (d_mem[ex2mem.data+3]);
                 break;
             }
@@ -198,6 +197,8 @@ void ID()
             id2ex.isEX = 0;
             id2ex.isMEM = 0;
             id2ex.isWB = 0;
+            id2ex.rs = 0;
+            id2ex.rt = 0;
             return;
         }
     }

@@ -14,10 +14,8 @@ int LoadStall_rt()
 
 int BeqBneStall()
 {
-    printf("cycle %d BEQSTALL\n",cycle);
-    printf("exmem isMEM = %d\n",ex2mem.isMEM);
     if(id2ex.isWB  && ( id2ex.save_reg == Get_rs(if2id.IS) || id2ex.save_reg == Get_rt(if2id.IS) ) && id2ex.save_reg != 0 ) return 1;
-    if(mem2wb.isWB && (mem2wb.wb_reg == Get_rs(if2id.IS) || mem2wb.wb_reg == Get_rt(if2id.IS)) && mem2wb.wb_reg != 0) return 1;
+    if(mem2wb.isWB && (mem2wb.save_reg == Get_rs(if2id.IS) || mem2wb.save_reg == Get_rt(if2id.IS)) && mem2wb.save_reg != 0) return 1;
     return 0;
 }
 
@@ -46,9 +44,9 @@ int Stall_I_type(unsigned int opcode)
 
 int MemWBForwardRs(unsigned int rs)
 {
-    if( mem2wb.isWB && mem2wb.wb_reg != 0 &&
+    if( mem2wb.isWB && mem2wb.save_reg != 0 &&
             !( ex2mem.isWB && ex2mem.save_reg != 0 && ex2mem.save_reg == rs ) &&
-            mem2wb.wb_reg == rs )
+            mem2wb.save_reg == rs)
     {
         return rs;
     }
@@ -57,9 +55,9 @@ int MemWBForwardRs(unsigned int rs)
 
 int MemWBForwardRt(unsigned int rt)
 {
-    if( mem2wb.isWB && mem2wb.wb_reg != 0 &&
+    if( mem2wb.isWB && mem2wb.save_reg != 0 &&
             !( ex2mem.isWB && ex2mem.save_reg != 0 && ex2mem.save_reg == rt ) &&
-            mem2wb.wb_reg == rt )
+            mem2wb.save_reg == rt)
     {
         return rt;
     }

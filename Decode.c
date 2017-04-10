@@ -2,7 +2,8 @@
 
 unsigned int GetLineN(int n, FILE *fp)
 {
-    fpos_t pos = n;
+    fpos_t pos;
+    pos.__pos = n;
     unsigned int buff;
 
     fsetpos(fp,&pos);

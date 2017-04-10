@@ -17,14 +17,14 @@ typedef struct{
     int isMEM;
     int LS; // 1 for load, 0 for save
     int byte;
-    int sign;
+    int sign; // 1 for sign, 0 for unsign
     unsigned int save_reg;
     int data;
 }EXMEM;
 
 typedef struct{
     int isWB;
-    unsigned int wb_reg;
+    unsigned int save_reg;
     int data;
 }MEMWB;
 

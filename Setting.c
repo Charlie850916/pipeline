@@ -7,8 +7,8 @@ void Initial()
 
     fp_i = fopen("iimage.bin", "rb");
     fp_d = fopen("dimage.bin", "rb");
-    fp_r = fopen("snapshot.rpt", "wb");
-    fp_err = fopen("errop_dump.rpt", "wb");
+    fp_r = fopen("a.rpt", "wb");
+    fp_err = fopen("b.rpt", "wb");
 
     HI = 0x0000000;
     LO = 0x0000000;
