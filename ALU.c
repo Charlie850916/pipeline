@@ -8,12 +8,12 @@ int ALU(ALUoper oper, int ALU0, int ALU1)
         switch(oper.func)
         {
         case 0x20: // add
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x21: // addu
             return ALU0 + ALU1;
         case 0x22: // sub
-            rwae.num_over = OverFlow_add(ALU0, -ALU1, ALU0 - ALU1);
+            msg.num_over = OverFlow_add(ALU0, -ALU1, ALU0 - ALU1);
             return ALU0 - ALU1;
         case 0x24: // and
             return ALU0 & ALU1;
@@ -42,33 +42,33 @@ int ALU(ALUoper oper, int ALU0, int ALU1)
         switch(oper.func)
         {
         case 0x08: // addi
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x09: // addiu
             return ALU0 + ALU1;
         case 0x23: // lw
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x21: // lh
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x25: // lhu
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x20: // lb
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x24: // lbu
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x2b: // sw
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x29: // sh
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x28: // sb
-            rwae.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
+            msg.num_over = OverFlow_add(ALU0, ALU1, ALU0 + ALU1);
             return ALU0 + ALU1;
         case 0x0f: // lui
             return ALU1 << 16;

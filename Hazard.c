@@ -15,25 +15,14 @@ int LoadStall_rt()
 int BeqBneStall()
 {
     if(id2ex.isWB  && ( id2ex.save_reg == Get_rs(if2id.IS) || id2ex.save_reg == Get_rt(if2id.IS) ) && id2ex.save_reg != 0 ) return 1;
-    if( (ex2mem.isMEM && ex2mem.LS) && (ex2mem.save_reg == Get_rs(if2id.IS) || ex2mem.save_reg == Get_rt(if2id.IS)) && ex2mem.save_reg != 0 ) return 1;  
+    if(mem2wb.isWB && (mem2wb.save_reg == Get_rs(if2id.IS) || mem2wb.save_reg == Get_rt(if2id.IS)) && mem2wb.save_reg != 0 && (MEM_c[1] == 'W' || MEM_c[1] == 'B' || MEM_c[1] == 'H') ) return 1;  
     return 0;
 }
 
 int JrBgtzStall()
 {
-    if(cycle == 101) 
-    { 
-      printf("hello 101\n");
-      printf("id2ex.isWB = %d\n", id2ex.isWB);
-      printf("id2ex.save_reg = %d\n", id2ex.save_reg);
-      printf("jr reg = %d\n",Get_rs(if2id.IS));
-      printf("ex2mem.isMEM = %d\n", ex2mem.isMEM);
-      printf("ex2mem.isWB = %d\n", ex2mem.isWB);
-      printf("ex2mem.save_reg = %d\n", ex2mem.save_reg);
-
-    }
-    if(id2ex.isWB  && id2ex.save_reg == Get_rs(if2id.IS) && (id2ex.save_reg != 0) ) return 1;
-    if( (ex2mem.isMEM && ex2mem.LS) && ex2mem.save_reg == Get_rs(if2id.IS) && ex2mem.save_reg != 0  ) return 1;
+    if(id2ex.isWB  && id2ex.save_reg == Get_rs(if2id.IS) && id2ex.save_reg != 0 ) return 1;
+    if(mem2wb.isWB && mem2wb.save_reg == Get_rs(if2id.IS) && mem2wb.save_reg != 0  && MEM_c[0] == 'L' && (MEM_c[1] == 'W' || MEM_c[1] == 'B' || MEM_c[1] == 'H') ) return 1;
     return 0;
 }
 
@@ -228,21 +217,9 @@ int Fwd_memwb2rt()
     return 0;
 }
 
-int BranchFwd_memwb2rs()
-{
-    if(GetOpcode(if2id.IS) == 0x04 || GetOpcode(if2id.IS) == 0x05 || GetOpcode(if2id.IS) == 0x07 || (GetOpcode(if2id.IS) == 0x00 && Get_func(if2id.IS) == 0x08 ) ) return MemWBForwardRs( Get_rs(if2id.IS) );
-    return 0;
-}
-
 int BranchFwd_exmem2rs()
 {
     if(GetOpcode(if2id.IS) == 0x04 || GetOpcode(if2id.IS) == 0x05 || GetOpcode(if2id.IS) == 0x07 || (GetOpcode(if2id.IS) == 0x00 && Get_func(if2id.IS) == 0x08 ) ) return ExMemForwardRs( Get_rs(if2id.IS) );
-    return 0;
-}
-
-int BranchFwd_memwb2rt()
-{
-    if(GetOpcode(if2id.IS) == 0x04 || GetOpcode(if2id.IS) == 0x05) return MemWBForwardRt( Get_rt(if2id.IS) );
     return 0;
 }
 

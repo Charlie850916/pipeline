@@ -1,39 +1,5 @@
 #include "function.h"
 
-void RegWriteANDError()
-{
-    if(rwae.isWriteReg)
-    {
-        s[rwae.save_reg] = rwae.data;
-        s0_Overwrite(rwae.save_reg);
-        rwae.isWriteReg = 0;
-    }
-    if(rwae.isWriteHILO)
-    {
-        if(rwae.isOverwriteHILO) fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
-        rwae.isOverwriteHILO = 1;
-        HI = rwae.HI;
-        LO = rwae.LO;
-        rwae.isWriteHILO = 0;
-    }
-    if(rwae.addr_over)
-    {
-        halt = 1;
-        fprintf(fp_err, "In cycle %d: Address Overflow\n", cycle);
-    }
-    if(rwae.addr_mis)
-    {
-        halt = 1;
-        fprintf(fp_err, "In cycle %d: Misalignment Error\n", cycle);
-    }
-    if(rwae.num_over)
-    {
-        fprintf(fp_err, "In cycle %d: Number Overflow\n", cycle);
-        rwae.num_over = 0; 
-    }
-    return;
-}
-
 void WB()
 {
     int i;
@@ -41,11 +7,9 @@ void WB()
 
     if(mem2wb.isWB == 1)
     {
-        rwae.isWriteReg = 1;
-        rwae.data = mem2wb.data;
-        rwae.save_reg = mem2wb.save_reg;
+        s[mem2wb.save_reg] = mem2wb.data;
+        msg.isWriteZero = s0_Overwrite(mem2wb.save_reg);
     }
-
     return;
 }
 
@@ -68,13 +32,13 @@ void MEM()
     {
         if(AddressOverflow(ex2mem.data,ex2mem.byte))
         {
-            rwae.addr_over = 1;
-            rwae.addr_mis = Misalignment(ex2mem.data,ex2mem.byte);
+            msg.addr_over = 1;
+            msg.addr_mis = Misalignment(ex2mem.data,ex2mem.byte);
             return;
         }
         if(Misalignment(ex2mem.data,ex2mem.byte))
         {
-            rwae.addr_mis = 1; 
+            msg.addr_mis = 1; 
             return;
         }
         if(ex2mem.LS == 1) // load
@@ -183,28 +147,30 @@ void EX()
         }
         if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x18) // mult
         {
-            rwae.isWriteHILO = 1;
+            if(overwriteHL) msg.isOverwriteHILO = 1;
+            overwriteHL = 1;
             a = ALU0;
             b = ALU1;
-            rwae.HI = a*b >> 32;
-            rwae.LO = a*b & 0x00000000ffffffff;
+            HI = a*b >> 32;
+            LO = a*b & 0x00000000ffffffff;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x19) // multu
         {
-            rwae.isWriteHILO = 1;
+            if(overwriteHL) msg.isOverwriteHILO = 1;
+            overwriteHL = 1;
             a = ( ALU0 & 0x00000000ffffffff);
             b = ( ALU1 & 0x00000000ffffffff);
-            rwae.HI = a*b >> 32;
-            rwae.LO = a*b & 0x00000000ffffffff ;
+            HI = a*b >> 32;
+            LO = a*b & 0x00000000ffffffff ;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x10) // mfhi
         {
-            rwae.isOverwriteHILO = 0;
+            overwriteHL = 0;
             ex2mem.data = HI;
         }
         else if(id2ex.oper.type == 'R' && id2ex.oper.func == 0x12) // mflo
         {
-            rwae.isOverwriteHILO = 0;
+            overwriteHL = 0;
             ex2mem.data = LO;
         }
         else ex2mem.data = ALU(id2ex.oper, ALU0, ALU1);
@@ -291,7 +257,7 @@ void ID()
             flush = 1;
             id2ex.isEX = 0;
             id2ex.isWB = 0;
-            if(bforward_exmem2rs || bforward_memwb2rs) branchPC = bfwd_rs; 
+            if(bforward_exmem2rs) branchPC = bfwd_rs; 
             else branchPC = s[id2ex.rs];
             return;
         }
@@ -386,9 +352,9 @@ void ID()
         if(opcode == 0x04 || opcode == 0x05 || opcode == 0x07) // beq bne bgtz
         {
             int $s, $t;
-            if(bforward_exmem2rs || bforward_memwb2rs) $s = bfwd_rs;
+            if(bforward_exmem2rs) $s = bfwd_rs;
             else $s = s[id2ex.rs];
-            if(bforward_exmem2rt || bforward_memwb2rt) $t = bfwd_rt;
+            if(bforward_exmem2rt) $t = bfwd_rt;
             else $t = s[id2ex.rt];
 
             id2ex.isWB = 0;

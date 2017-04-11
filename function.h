@@ -3,17 +3,12 @@
 #include <string.h>
 
 typedef struct{
-    int isWriteReg;
+    int isWriteZero;
     int isOverwriteHILO;
-    int isWriteHILO;
-    unsigned int save_reg;
-    int data;
-    int HI;
-    int LO;
     int num_over;
     int addr_mis;
     int addr_over;
-}RegWriteAndError;
+}ErrorMsg;
 
 typedef struct{
     int isWB;
@@ -61,15 +56,15 @@ MEMWB mem2wb;
 EXMEM ex2mem;
 IDEX id2ex;
 IFID if2id;
-RegWriteAndError rwae;
+ErrorMsg msg;
 
-int s[32], s_p[32], s_tmp[32];
+int s[32], s_p[32];
 
 int d_mem[1024];
 
 unsigned int i_mem[256];
 
-unsigned int PC, LO, HI, i_num, d_num, HI_p, LO_p, HI_tmp, LO_tmp;
+unsigned int PC, LO, HI, i_num, d_num, HI_p, LO_p;
 
 FILE *fp_r, *fp_err;
 
@@ -81,7 +76,7 @@ int fwd_rs, fwd_rt, bfwd_rs, bfwd_rt;
 
 int forward_exmem2rs, forward_exmem2rt, forward_memwb2rs, forward_memwb2rt;
 
-int bforward_exmem2rs, bforward_exmem2rt, bforward_memwb2rs, bforward_memwb2rt;
+int bforward_exmem2rs, bforward_exmem2rt;
 
 char c_id[10], c_ex[10], c_mem[10], c_rb[10];
 
@@ -90,6 +85,10 @@ void Initial();
 void InitialImf();
 
 void PrintImf();
+
+void PrintPipe();
+
+void PrintError();
 
 void Ending();
 
@@ -140,10 +139,6 @@ int Fwd_memwb2rt();
 int BranchFwd_exmem2rs();
 
 int BranchFwd_exmem2rt();
-
-int BranchFwd_memwb2rs();
-
-int BranchFwd_memwb2rt();
 
 void Instruction_Detect(unsigned int opcode, unsigned int func);
 

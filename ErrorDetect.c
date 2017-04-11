@@ -11,7 +11,6 @@ int s0_Overwrite(int d)
     if(d==0)
     {
         s[0] = 0;
-        fprintf(fp_err, "In cycle %d: Write $0 Error\n", cycle);
         return 1;
     }
     return 0;

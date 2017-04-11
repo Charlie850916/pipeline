@@ -43,6 +43,11 @@ void PrintImf()
     }
     fprintf(fp_r,"PC: 0x%08X\n",PC);
 
+    return;
+}
+
+void PrintPipe()
+{
     fprintf(fp_r,"IF: 0x%08X",i_mem[PC/4]);
     if(flush) fprintf(fp_r," to_be_flushed");
     if(stall) fprintf(fp_r," to_be_stalled");
@@ -75,6 +80,36 @@ void PrintImf()
     fprintf(fp_r,"\n");
 
     fprintf(fp_r,"\n\n");
+
+}
+
+void PrintError()
+{
+    if(msg.isWriteZero)
+    {
+        fprintf(fp_err, "In cycle %d: Write $0 Error\n", cycle);
+        msg.isWriteZero = 0;
+    }
+    if(msg.isOverwriteHILO) 
+    {
+        fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
+        msg.isOverwriteHILO = 0;
+    }
+    if(msg.addr_over)
+    {
+        halt = 1;
+        fprintf(fp_err, "In cycle %d: Address Overflow\n", cycle);
+    }
+    if(msg.addr_mis)
+    {
+        halt = 1;
+        fprintf(fp_err, "In cycle %d: Misalignment Error\n", cycle);
+    }
+    if(msg.num_over)
+    {
+        fprintf(fp_err, "In cycle %d: Number Overflow\n", cycle);
+        msg.num_over = 0;
+    }
     return;
 }
 

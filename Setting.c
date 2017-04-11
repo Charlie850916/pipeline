@@ -7,8 +7,8 @@ void Initial()
 
     fp_i = fopen("iimage.bin", "rb");
     fp_d = fopen("dimage.bin", "rb");
-    fp_r = fopen("a.rpt", "wb");
-    fp_err = fopen("b.rpt", "wb");
+    fp_r = fopen("snapshot.rpt", "wb");
+    fp_err = fopen("error_dump.rpt", "wb");
 
     HI = 0x0000000;
     LO = 0x0000000;
@@ -48,20 +48,15 @@ void Initial()
     fclose(fp_i);
     fclose(fp_d);
 
-    for(i=0 ; i<32 ; i++) s_tmp[i] = s[i];
-    HI_tmp = HI;
-    LO_tmp = LO;
-
     overwriteHL = 0;
     halt = 0;
     stall = 0;
     flush = 0;
-    rwae.isWriteReg = 0;
-    rwae.isOverwriteHILO = 0;
-    rwae.isWriteHILO = 0;
-    rwae.addr_mis = 0;
-    rwae.addr_over = 0;
-    rwae.num_over = 0;
+    msg.isOverwriteHILO = 0;
+    msg.isWriteZero = 0;
+    msg.addr_mis = 0;
+    msg.addr_over = 0;
+    msg.num_over = 0;
     mem2wb.isWB = 0;
     ex2mem.isMEM = 0;
     ex2mem.isWB = 0;
