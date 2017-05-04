@@ -39,6 +39,7 @@ int Stall_I_type(unsigned int opcode)
     if(opcode == 0x04 || opcode == 0x05) return BeqBneStall();
     else if(opcode == 0x07) return JrBgtzStall();
     else if(opcode == 0x2b || opcode == 0x29 || opcode == 0x28) return LoadStall_rs() || LoadStall_rt();
+    else if(opcode == 0x3f) return 0;
     else if(opcode != 0x0f && opcode != 0x02 && opcode != 0x03) return LoadStall_rs();
     return 0;
 }

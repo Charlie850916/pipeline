@@ -56,7 +56,7 @@ void PrintPipe()
     fprintf(fp_r,"ID: ");
     fprintf(fp_r,"%s",ID_c);
     if(stall) fprintf(fp_r," to_be_stalled");
-    else
+    else if(ID_c[0]!='N'&&ID_c[1]!='O'&&ID_c[2]!='P')
     {
        if(bforward_exmem2rs) fprintf(fp_r," fwd_EX-DM_rs_$%d", bforward_exmem2rs);
        if(bforward_exmem2rt) fprintf(fp_r," fwd_EX-DM_rt_$%d", bforward_exmem2rt);
@@ -90,12 +90,7 @@ void PrintError()
         fprintf(fp_err, "In cycle %d: Write $0 Error\n", cycle);
         msg.isWriteZero = 0;
     }
-    if(msg.isOverwriteHILO) 
-    {
-        fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
-        msg.isOverwriteHILO = 0;
-    }
-    if(msg.addr_over)
+   if(msg.addr_over)
     {
         halt = 1;
         fprintf(fp_err, "In cycle %d: Address Overflow\n", cycle);
@@ -104,6 +99,11 @@ void PrintError()
     {
         halt = 1;
         fprintf(fp_err, "In cycle %d: Misalignment Error\n", cycle);
+    }
+    if(msg.isOverwriteHILO) 
+    {
+        fprintf(fp_err, "In cycle %d: Overwrite HI-LO registers\n", cycle);
+        msg.isOverwriteHILO = 0;
     }
     if(msg.num_over)
     {
