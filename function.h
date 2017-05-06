@@ -48,7 +48,6 @@ typedef struct{
 }IDEX;
 
 typedef struct{
-    unsigned int inIS;   
     unsigned int IS;
 }IFID;
 

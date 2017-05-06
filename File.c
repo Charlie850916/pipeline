@@ -56,7 +56,7 @@ void PrintPipe()
     fprintf(fp_r,"ID: ");
     fprintf(fp_r,"%s",ID_c);
     if(stall) fprintf(fp_r," to_be_stalled");
-    else if(ID_c[0]!='N'&&ID_c[1]!='O'&&ID_c[2]!='P')
+    else if(ID_c[0]!='N'||ID_c[1]!='O'||ID_c[2]!='P')
     {
        if(bforward_exmem2rs) fprintf(fp_r," fwd_EX-DM_rs_$%d", bforward_exmem2rs);
        if(bforward_exmem2rt) fprintf(fp_r," fwd_EX-DM_rt_$%d", bforward_exmem2rt);
